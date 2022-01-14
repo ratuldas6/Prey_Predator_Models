@@ -847,7 +847,7 @@ def RK4_2var(h, t0, t_lim, x0, y0, fx, fy):
     t0 : initial value for t
     t_lim : final value of t
     x0 : value of x' at t0
-    z0 : value of y' at t0
+    y0 : value of y' at t0
     fx : x'(t,x,y)
     fy : y'(t,x,y)
     
@@ -881,6 +881,56 @@ def RK4_2var(h, t0, t_lim, x0, y0, fx, fy):
 
     return T, X, Y
     
+def RK4_3var(h, t0, t_lim, x0, y0, z0, fx, fy, fz):
+    """
+    h : step size
+    t0 : initial value for t
+    t_lim : final value of t
+    x0 : value of x' at t0
+    y0 : value of y' at t0
+    z0 : value of z' at t0
+    fx : x'(t,x,y,z)
+    fy : y'(t,x,y,z)
+    fz : z'(t,x,y,z)
+    
+    T = values of t
+    X = values of solution curve x(t)
+    Y = values of solution curve y(t)
+    Y = values of solution curve z(t)
+    """
+
+    T = []
+    X = []
+    Y = []
+    Z = []
+    
+    T.append(t0)
+    X.append(x0)
+    Y.append(y0)
+    Z.append(z0)
+
+    n = int((t_lim-t0)/h) #find number of steps to run loop
+    
+    for i in range(n):
+        k1 = h * fx(T[i], X[i], Y[i], Z[i])
+        l1 = h * fy(T[i], X[i], Y[i], Z[i])
+        m1 = h * fz(T[i], X[i], Y[i], Z[i])
+        k2 = h * fx(T[i] + h/2, X[i] + k1/2, Y[i] + l1/2, Z[i] + m1/2)
+        l2 = h * fy(T[i] + h/2, X[i] + k1/2, Y[i] + l1/2, Z[i] + m1/2)
+        m2 = h * fz(T[i] + h/2, X[i] + k1/2, Y[i] + l1/2, Z[i] + m1/2)
+        k3 = h * fx(T[i] + h/2, X[i] + k2/2, Y[i] + l2/2, Z[i] + m2/2)
+        l3 = h * fy(T[i] + h/2, X[i] + k2/2, Y[i] + l2/2, Z[i] + m2/2)
+        m3 = h * fy(T[i] + h/2, X[i] + k2/2, Y[i] + l2/2, Z[i] + m2/2)
+        k4 = h * fx(T[i] + h, X[i] + k3, Y[i] + l3, Z[i] + m3)
+        l4 = h * fy(T[i] + h, X[i] + k3, Y[i] + l3, Z[i] + m3)
+        m4 = h * fy(T[i] + h, X[i] + k3, Y[i] + l3, Z[i] + m3)
+
+        T.append(T[i] + h)
+        X.append(X[i] + (k1 + 2*k2 + 2*k3 + k4)/6)
+        Y.append(Y[i] + (l1 + 2*l2 + 2*l3 + l4)/6)
+        Z.append(Z[i] + (m1 + 2*m2 + 2*m3 + m4)/6)
+
+    return T, X, Y, Z
 
 def Shooting(d2ydx2, dydx, x0, y0, xf, yf, z1, z2, step_size, tol=1e-6):
     """
